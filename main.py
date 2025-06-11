@@ -4,6 +4,7 @@ import webbrowser as browse
 from queue import Queue
 from threading import Thread
 import os
+import pyautogui
 
 tts = ts.init()
 tts.setProperty('rate', 170)
@@ -19,6 +20,7 @@ def speak(text):
 
 def recognize(audio):
     result1 = r.recognize_faster_whisper(audio, task='translate')
+    print(result1)
     if "jarvis" in result1.lower():
         thing = result1.lower().split()
         string = ""
@@ -28,10 +30,16 @@ def recognize(audio):
         command = string.split(" ")
         command.pop(0)
         print(command)
+
         if command[0].lower().strip(",.:") == "search":
             query = "+".join(command[1:])
             browse.open(f"https://www.google.com/search?q={query}")
             speak("ok")
+
+        if command[0].lower().strip(".,:") == "help":
+            os.system(f"ollama run voiceassistant {' '.join(command)} > cache")
+            with open("cache", "r") as file:
+                pyautogui.write(file.read())
 
         else:
             os.system(f"ollama run voiceassistant {' '.join(command)} > cache")
